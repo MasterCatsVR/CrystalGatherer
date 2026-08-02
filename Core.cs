@@ -20,7 +20,7 @@ namespace enhancedHunterSkills
             Gatherer featherGatherer = skill as Gatherer;
             Item[] validItems = (Item[])featherGatherer.GetType().GetField("validItems", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(featherGatherer);
             List<Item> validItemList = validItems.ToList();
-            validItemList.AddAll(Item.All.Where(item => item.Hash == 5268u || item.Hash == 49918u || item.Hash == 8392u || item.Hash == 5924u || item.Hash ==  || item.Hash == ));
+            validItemList.AddAll(Item.All.Where(item => item.Hash == 5268u || item.Hash == 49918u || item.Hash == 8392u || item.Hash == 5924u || item.Hash == 32140u || item.Hash == 13970u || item.Hash == 3636u));
 
             featherGatherer.GetType().GetField("validItems", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(featherGatherer, validItemList.ToArray());
             LoggerInstance.Msg("FeatherGatherer skill updated with new valid items.");
