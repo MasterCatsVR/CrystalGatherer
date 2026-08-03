@@ -1,0 +1,114 @@
+name: Automatic DLL Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check commit message
+        id: version
+        shell: pwsh
+        run: |
+          $message = @"
+          ${{ github.event.head_commit.message }}
+          "@
+
+          if ($message -notmatch '(?i)Bump\s+(v\d+\.\d+\.\d+)') {
+            Write-Host "Commit message does not contain a version bump."
+            Write-Host "Expected format: Bump v1.0.1"
+
+            echo "should_release=false" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          $version = $Matches[1].ToLower()
+
+          echo "should_release=true" >> $env:GITHUB_OUTPUT
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+          Write-Host "Detected release version: $version"
+
+      - name: Checkout repository
+        if: steps.version.outputs.should_release == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        if: steps.version.outputs.should_release == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore project
+        if: steps.version.outputs.should_release == 'true'
+        run: dotnet restore
+
+      - name: Build project
+        if: steps.version.outputs.should_release == 'true'
+        run: dotnet publish --configuration Release --output ./publish
+
+      - name: Find release DLL
+        if: steps.version.outputs.should_release == 'true'
+        id: dll
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $expectedName = "enhancedHuntingSkills-$env:VERSION.dll"
+
+          Write-Host "Looking for: $expectedName"
+
+          $dll = Get-ChildItem -Path "./publish" -Recurse -File |
+            Where-Object {
+              $_.Name.Equals(
+                $expectedName,
+                [System.StringComparison]::OrdinalIgnoreCase
+              )
+            } |
+            Select-Object -First 1
+
+          if (-not $dll) {
+            Write-Error "Could not find $expectedName"
+
+            Write-Host "DLL files found in the publish directory:"
+
+            Get-ChildItem -Path "./publish" -Recurse -Filter "*.dll" |
+              ForEach-Object {
+                Write-Host $_.FullName
+              }
+
+            exit 1
+          }
+
+          echo "path=$($dll.FullName)" >> $env:GITHUB_OUTPUT
+          echo "name=$($dll.Name)" >> $env:GITHUB_OUTPUT
+
+          Write-Host "Found release DLL: $($dll.FullName)"
+
+      - name: Create GitHub release
+        if: steps.version.outputs.should_release == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          DLL_PATH: ${{ steps.dll.outputs.path }}
+        run: |
+          $existingRelease = gh release view "$env:VERSION" 2>$null
+
+          if ($LASTEXITCODE -eq 0) {
+            Write-Error "A release named $env:VERSION already exists."
+            exit 1
+          }
+
+          gh release create "$env:VERSION" `
+            "$env:DLL_PATH" `
+            --target "${{ github.sha }}" `
+            --title "$env:VERSION" `
+            --generate-notes
