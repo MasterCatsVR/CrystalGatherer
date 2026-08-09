@@ -48,7 +48,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          EXPECTED_FILE="release/enhancedHunterSkills-${VERSION}.dll"
+          EXPECTED_FILE="release/CrystalGatherer-${VERSION}.dll"
 
           echo "Looking for: $EXPECTED_FILE"
 
