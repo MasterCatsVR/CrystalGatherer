@@ -27,3 +27,4 @@ namespace crystalGatherer
         }
     }
 }
+## Bump v1.0.0
