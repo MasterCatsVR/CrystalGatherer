@@ -1,4 +1,4 @@
-name: Automatic DLL Release
+ name: Automatic DLL Release
 
 on:
   push:
