@@ -20,13 +20,13 @@ namespace crystalGatherer
 
             if (earlyGame = true)
             {
-               var theSkill = 38322u // Basic Stone Gatherer
-               var skillType = "Basic Stone"
+               var theSkill = 38322u; // Basic Stone Gatherer
+               var skillType = "Basic Stone";
             }
             else
             {
-               var theSkill = 43020u // Ore Gatherer
-               var skillType = "Ore"
+               var theSkill = 43020u; // Ore Gatherer
+               var skillType = "Ore";
             }
 
             LoggerInstance.Msg("Late Initialized.");
