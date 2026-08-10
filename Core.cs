@@ -11,12 +11,24 @@ namespace crystalGatherer
     {
         public override void OnInitializeMelon()
         {
+            category = MelonPreferences.CreateCategory("CrystalGatherer");
+            earlyGame = ourFirstCategory.CreateEntry<bool>("Early Game", false);
             LoggerInstance.Msg("Initialized.");
         }
         public override void OnLateInitializeMelon()
         {
+
+            if (earlyGame = true)
+            {
+                theSkill = 38322u
+            }
+            else
+            {
+                theSkill = 43020u
+            }
+
             LoggerInstance.Msg("Late Initialized.");
-            ProfessionSkill skill = ProfessionSkill.All.Where(skill => skill.Hash == 43020u).First(); // this is Ore Gatherer
+            ProfessionSkill skill = ProfessionSkill.All.Where(skill => skill.Hash == theSkill).First(); // The Skill
             Gatherer oreGatherer = skill as Gatherer;
             Item[] validItems = (Item[])oreGatherer.GetType().GetField("validItems", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(oreGatherer);
             List<Item> validItemList = validItems.ToList();
@@ -27,4 +39,3 @@ namespace crystalGatherer
         }
     }
 }
-## Bump v1.0.0
