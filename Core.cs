@@ -20,11 +20,11 @@ namespace crystalGatherer
 
             if (earlyGame = true)
             {
-                theSkill = 38322u
+               var theSkill = 38322u
             }
             else
             {
-                theSkill = 43020u
+               var theSkill = 43020u
             }
 
             LoggerInstance.Msg("Late Initialized.");
